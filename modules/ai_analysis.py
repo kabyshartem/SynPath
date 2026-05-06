@@ -2,6 +2,39 @@ import anthropic, json, sys, os, re
 sys.path.append(os.path.dirname(os.path.dirname(__file__)))
 import config
 
+import httpx as _httpx
+
+async def _fix_smiles(name: str, smiles: str) -> str:
+    """Validate SMILES via RDKit; if invalid/empty, fetch from PubChem by name."""
+    if smiles:
+        try:
+            from rdkit import Chem
+            if Chem.MolFromSmiles(smiles) is not None:
+                return smiles
+        except Exception:
+            pass
+    if not name or len(name) < 2:
+        return smiles
+    try:
+        async with _httpx.AsyncClient(timeout=10) as c:
+            url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{_httpx.URL(name)}/property/IsomericSMILES/JSON"
+            r = await c.get(f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{name}/property/IsomericSMILES/JSON")
+            if r.status_code == 200:
+                data = r.json()
+                return data["PropertyTable"]["Properties"][0]["IsomericSMILES"]
+    except Exception:
+        pass
+    return smiles
+
+async def _fix_route_smiles(parsed: dict) -> dict:
+    for route in parsed.get("routes", []):
+        for step in route.get("steps_with_smiles", []):
+            step["reactant_smiles"] = await _fix_smiles(step.get("reactant_name",""), step.get("reactant_smiles",""))
+            step["product_smiles"] = await _fix_smiles(step.get("product_name",""), step.get("product_smiles",""))
+    return parsed
+
+
+
 SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-3 retrosynthetic routes for the EXACT target molecule provided. Every route must lead to the EXACT target — not an analog, not a similar compound. If analog-based reasoning is used, the final product must still be the exact target. Use chemistry knowledge when no literature exists. Return ONLY valid JSON object, no markdown, no text outside JSON."
 
 async def analyze_routes(target_name, target_smiles, retrosynthesis_data, literature_papers, availability_data, partial_route=False, start_smiles=""):
@@ -33,6 +66,7 @@ async def analyze_routes(target_name, target_smiles, retrosynthesis_data, litera
                 except: pass
         if not parsed: return {"error":f"Parse failed: {raw[:300]}","routes":[],"analysis_summary":"Parse error"}
         if not isinstance(parsed.get("routes"),list) or not parsed["routes"]: return {"error":"No routes","routes":[],"analysis_summary":parsed.get("analysis_summary","")}
+        parsed = await _fix_route_smiles(parsed)
         return parsed
     except anthropic.APIStatusError as e: return {"error":f"API {e.status_code}: {e.message}","routes":[],"analysis_summary":str(e)}
     except Exception as ex: return {"error":str(ex),"routes":[],"analysis_summary":str(ex)}
