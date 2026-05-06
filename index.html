@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SynPath</title>
+<link href="https://fonts.googleapis.com/css2?family=Georgia&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f4f8;
+    --white: #ffffff;
+    --border: #dde3ec;
+    --border2: #c8d2e0;
+    --navy: #003366;
+    --navy2: #004080;
+    --accent: #0057a8;
+    --accent2: #1a73c8;
+    --accentlight: #deeaf7;
+    --orange: #e05c00;
+    --text: #1a2332;
+    --text2: #4a5568;
+    --text3: #8896a5;
+    --green: #1a7a4a;
+    --greenlight: #e6f4ec;
+    --yellow: #b45309;
+    --yellowlight: #fef3c7;
+    --red: #c0392b;
+    --redlight: #fde8e6;
+    --blue: #1a5eb8;
+    --serif: Georgia, 'Times New Roman', serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'SF Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* ── HEADER ── */
+  .hdr {
+    background: var(--navy);
+    padding: 0 28px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+  .logo-wrap { display: flex; align-items: center; gap: 12px; }
+  .logo-icon {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #1a73c8, #0057a8);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--serif);
+    font-size: 14px; font-weight: 700; color: #fff;
+    letter-spacing: -.5px;
+    box-shadow: 0 2px 6px rgba(0,0,30,.3);
+  }
+  .logo-name {
+    font-family: var(--serif);
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: -.3px;
+  }
+  .logo-tagline {
+    font-size: 9px;
+    color: rgba(255,255,255,.5);
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    margin-top: 1px;
+  }
+  .hdr-divider { width: 1px; height: 28px; background: rgba(255,255,255,.15); }
+  .hdr-badges { display: flex; gap: 6px; }
+  .hbadge {
+    padding: 3px 9px;
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 3px;
+    font-size: 9px;
+    color: rgba(255,255,255,.6);
+    letter-spacing: .06em;
+    font-weight: 500;
+  }
+  .back-btn {
+    display: none; align-items: center; gap: 6px;
+    padding: 6px 14px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 6px;
+    background: transparent;
+    color: rgba(255,255,255,.85);
+    font-size: 12px; font-weight: 500; cursor: pointer;
+    transition: all .15s;
+  }
+  .back-btn:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.4); }
+  .back-btn.show { display: flex; }
+  .hdr-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+
+  /* ── SCREENS ── */
+  .screen { flex: 1; display: none; flex-direction: column; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ── DRAW SCREEN ── */
+  .draw-screen { background: var(--bg); }
+  .draw-top { padding: 16px 28px 0; flex-shrink: 0; }
+  .mode-tabs { display: flex; gap: 3px; }
+  .mtab {
+    padding: 8px 18px; font-size: 12px; font-weight: 500; cursor: pointer;
+    border-radius: 6px 6px 0 0;
+    border: 1px solid var(--border2); border-bottom: none;
+    background: var(--bg); color: var(--text2);
+    transition: all .15s;
+  }
+  .mtab.active { background: var(--white); color: var(--navy); font-weight: 600; border-color: var(--border); }
+  .mtab:hover:not(.active) { background: var(--white); color: var(--accent); }
+
+  .ketcher-wrap {
+    flex: 1; margin: 0 28px;
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--accent);
+    overflow: hidden; background: #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    min-height: 0;
+  }
+  #ketcher-frame { width: 100%; height: 100%; border: none; display: block; }
+
+  .text-area { flex: 1; display: none; flex-direction: column; gap: 14px; align-items: center; justify-content: center; padding: 28px; }
+  .text-area.show { display: flex; }
+  .tinput {
+    width: 100%; max-width: 560px;
+    background: var(--white); border: 1px solid var(--border2);
+    border-radius: 6px; padding: 12px 16px; color: var(--text);
+    font-size: 14px; font-family: var(--sans); outline: none;
+    transition: border-color .2s, box-shadow .2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  }
+  .tinput:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,87,168,.1); }
+  .smiles-in { font-family: var(--mono); color: var(--green); font-size: 12px; }
+  .hint { font-size: 11px; color: var(--text3); }
+  .examples { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+  .ex-btn {
+    padding: 4px 11px; background: var(--white);
+    border: 1px solid var(--border2); border-radius: 12px;
+    color: var(--text2); font-size: 11px; cursor: pointer;
+    transition: all .15s;
+  }
+  .ex-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accentlight); }
+  .pselect { background: var(--white); border: 1px solid var(--border2); border-radius: 6px; padding: 7px 10px; color: var(--text); font-size: 12px; outline: none; }
+
+  .partial-toggle { background: none; border: none; color: var(--accent2); font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; font-weight: 500; }
+  .partial-box { display: none; width: 100%; max-width: 560px; }
+  .partial-box.show { display: block; }
+
+  .draw-bottom {
+    background: var(--white);
+    border-top: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+    box-shadow: 0 -1px 4px rgba(0,0,0,.04);
+  }
+  .inv-pill { font-size: 11px; color: var(--green); display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .inv-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+  .analyze-btn {
+    padding: 10px 36px;
+    background: var(--accent);
+    border: none; border-radius: 6px; color: #fff;
+    font-size: 14px; font-weight: 600; font-family: var(--sans);
+    cursor: pointer; transition: all .2s;
+    box-shadow: 0 2px 6px rgba(0,87,168,.35);
+    letter-spacing: .01em;
+  }
+  .analyze-btn:hover { background: var(--navy2); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,87,168,.4); }
+  .analyze-btn:disabled { background: var(--border2); color: var(--text3); box-shadow: none; cursor: not-allowed; transform: none; }
+
+  /* ── RESULTS ── */
+  .results-screen { background: var(--bg); }
+
+  .target-bar {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 28px;
+    display: flex; align-items: center; gap: 20px;
+    flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0,0,0,.04);
+  }
+  .tname {
+    font-family: var(--serif);
+    font-size: 20px; color: var(--navy);
+    font-style: italic;
+  }
+  .tmeta { font-size: 11px; color: var(--text3); margin-top: 3px; font-family: var(--sans); }
+  .tmol { background: var(--white); border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+  .tmol img { height: 60px; display: block; }
+
+  .rtab-bar {
+    background: var(--white);
+    border-bottom: 2px solid var(--border);
+    padding: 0 28px;
+    display: flex; flex-shrink: 0;
+  }
+  .rtab {
+    padding: 12px 22px; font-size: 13px; font-weight: 500; color: var(--text2);
+    cursor: pointer; border: none; background: transparent;
+    border-bottom: 3px solid transparent; margin-bottom: -2px;
+    transition: all .15s; font-family: var(--sans);
+  }
+  .rtab:hover { color: var(--accent); }
+  .rtab.active { color: var(--navy); border-bottom-color: var(--accent); font-weight: 600; }
+
+  .tab-content { flex: 1; overflow-y: auto; padding: 20px 28px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── ROUTE CARDS ── */
+  .route-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    transition: box-shadow .2s;
+  }
+  .route-card:hover { box-shadow: 0 3px 10px rgba(0,0,0,.1); }
+  .route-card.recommended { border-left: 4px solid var(--accent); }
+
+  .route-hdr {
+    padding: 14px 20px;
+    display: flex; align-items: center; gap: 14px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(to right, #f8fafd, var(--white));
+  }
+  .route-num {
+    width: 30px; height: 30px;
+    background: var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+    font-family: var(--serif);
+  }
+  .route-title {
+    font-family: var(--serif);
+    font-size: 16px; font-weight: 700; color: var(--navy); flex: 1;
+  }
+  .rec-pill {
+    background: var(--accentlight); color: var(--accent);
+    font-size: 10px; font-weight: 700; padding: 3px 12px;
+    border-radius: 20px; letter-spacing: .04em; border: 1px solid #bdd5ee;
+  }
+
+  /* Stats */
+  .route-stats { display: flex; border-bottom: 1px solid var(--border); background: #fafbfd; }
+  .rstat { flex: 1; padding: 10px 16px; border-right: 1px solid var(--border); }
+  .rstat:last-child { border-right: none; }
+  .rstat-label { font-size: 9px; font-weight: 600; color: var(--text3); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; font-family: var(--sans); }
+  .rstat-value { font-size: 16px; font-weight: 700; font-family: var(--sans); }
+
+  /* ── SYNTHESIS SCHEME ── */
+  .scheme-section { padding: 18px 20px; border-bottom: 1px solid var(--border); }
+  .scheme-title {
+    font-size: 9px; font-weight: 700; color: var(--text3);
+    letter-spacing: .12em; text-transform: uppercase; margin-bottom: 16px;
+    font-family: var(--sans);
+  }
+  .scheme-flow {
+    display: flex; align-items: center;
+    flex-wrap: nowrap; gap: 0;
+    overflow-x: auto; padding-bottom: 8px;
+    min-height: 140px;
+  }
+
+  /* Molecule boxes — CLICKABLE */
+  .mol-box { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 115px; flex-shrink: 0; }
+  .mol-img-wrap {
+    background: var(--white);
+    border: 1.5px solid var(--border2);
+    border-radius: 8px; padding: 6px;
+    width: 112px; height: 92px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    cursor: pointer;
+    transition: all .2s;
+  }
+  .mol-img-wrap:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accentlight);
+    transform: translateY(-2px);
+  }
+  .mol-img-wrap:hover::after {
+    content: '✎ Edit';
+    position: absolute; bottom: 2px; right: 4px;
+    font-size: 8px; color: var(--accent); font-weight: 700;
+    font-family: var(--sans);
+  }
+  .mol-img-wrap img { max-width: 100px; max-height: 80px; object-fit: contain; }
+  .mol-img-wrap.target-mol {
+    border-color: var(--accent); border-width: 2px;
+    background: linear-gradient(135deg, #f0f7ff, var(--accentlight));
+    cursor: default;
+  }
+  .mol-img-wrap.target-mol:hover { transform: none; box-shadow: none; border-color: var(--accent); }
+  .mol-img-wrap.target-mol:hover::after { content: ''; }
+  .mol-img-wrap.sm-mol { border-color: var(--border2); background: #fafafa; }
+  .mol-label {
+    font-size: 10px; font-weight: 600; color: var(--text2);
+    text-align: center; max-width: 112px; line-height: 1.3;
+    font-family: var(--sans);
+  }
+  .mol-num {
+    font-size: 9px; font-weight: 700; color: var(--text3);
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 1px 5px; font-family: var(--sans);
+  }
+
+  /* Arrows */
+  .step-arrow { display: flex; flex-direction: column; align-items: center; min-width: 110px; padding: 0 8px; flex-shrink: 0; }
+  .arrow-line { display: flex; align-items: center; width: 100%; margin-bottom: 5px; }
+  .arrow-shaft { flex: 1; height: 1.5px; background: var(--navy2); }
+  .arrow-tip { border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 10px solid var(--navy2); }
+  .arrow-step-label {
+    font-size: 11px; font-weight: 700; color: var(--white);
+    background: var(--navy); border-radius: 4px;
+    padding: 2px 8px; margin-bottom: 4px;
+    font-family: var(--serif); font-style: italic;
+  }
+  .arrow-rxn { font-size: 9px; color: var(--accent); text-align: center; font-weight: 600; max-width: 110px; line-height: 1.4; font-family: var(--sans); }
+  .arrow-cond { font-size: 8px; color: var(--text3); text-align: center; max-width: 110px; line-height: 1.3; margin-top: 2px; font-family: var(--sans); }
+  .arrow-yield { font-size: 9px; color: var(--green); font-weight: 700; margin-top: 2px; font-family: var(--sans); }
+  .arrow-doi { font-size: 8px; text-align: center; margin-top: 2px; }
+  .arrow-doi a { color: var(--blue); text-decoration: none; }
+  .arrow-doi a:hover { text-decoration: underline; }
+
+  /* Refs */
+  .route-refs { padding: 10px 20px; border-bottom: 1px solid var(--border); background: #f7fafd; }
+  .ref-label { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 5px; font-family: var(--sans); }
+  .ref-item { font-size: 10px; color: var(--blue); margin-bottom: 3px; display: flex; align-items: flex-start; gap: 6px; font-family: var(--sans); }
+  .ref-item a { color: var(--blue); text-decoration: none; }
+  .ref-item a:hover { text-decoration: underline; }
+  .ref-note { color: var(--text2); font-size: 10px; }
+
+  /* Pros/Cons */
+  .route-footer { padding: 12px 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; background: #fcfcfe; }
+  .pros-list .item { font-size: 11px; color: var(--green); margin-bottom: 4px; display: flex; gap: 6px; font-family: var(--sans); }
+  .cons-list .item { font-size: 11px; color: var(--red); margin-bottom: 4px; display: flex; gap: 6px; font-family: var(--sans); }
+
+  /* Recommendation */
+  .rec-box {
+    background: linear-gradient(135deg, #eef5ff, var(--accentlight));
+    border: 1px solid #bdd5ee;
+    border-left: 4px solid var(--accent);
+    border-radius: 8px; padding: 14px 18px;
+    display: flex; gap: 14px; margin-bottom: 16px;
+  }
+  .rec-icon { font-size: 20px; flex-shrink: 0; }
+  .rec-label { font-size: 10px; font-weight: 700; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; font-family: var(--sans); }
+  .rec-text { font-family: var(--serif); font-size: 13px; color: #0c3460; line-height: 1.65; font-style: italic; }
+
+  /* Procedure */
+  .proc-title { font-family: var(--serif); font-size: 19px; font-weight: 700; color: var(--navy); margin-bottom: 18px; font-style: italic; }
+  .proc-step { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 12px; border-left: 3px solid var(--accent); }
+  .ps-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .ps-num { width: 28px; height: 28px; background: var(--navy); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0; font-family: var(--serif); }
+  .ps-title { font-family: var(--serif); font-size: 15px; font-weight: 700; color: var(--navy); }
+  .ps-field { margin-bottom: 8px; }
+  .ps-label { font-size: 9px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; font-family: var(--sans); }
+  .ps-val { font-size: 12px; color: var(--text); line-height: 1.7; white-space: pre-line; font-family: var(--sans); }
+  .ps-yield { font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--green); }
+  .ps-doi { font-size: 10px; margin-top: 6px; font-family: var(--sans); }
+  .ps-doi a { color: var(--blue); text-decoration: none; }
+  .ps-notes { font-size: 11px; color: var(--yellow); background: var(--yellowlight); border-radius: 4px; padding: 6px 10px; margin-top: 6px; font-family: var(--sans); border-left: 3px solid var(--yellow); }
+
+  /* Literature */
+  .lit-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin-bottom: 10px; box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+  .lit-title { font-family: var(--serif); font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 5px; line-height: 1.5; }
+  .lit-meta { font-size: 10px; color: var(--text3); margin-bottom: 8px; font-family: var(--sans); }
+  .lit-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .lit-tag { background: var(--accentlight); color: var(--accent); border-radius: 3px; padding: 2px 8px; font-size: 9px; font-weight: 600; font-family: var(--sans); }
+  .lit-doi { margin-bottom: 5px; }
+  .lit-doi a { font-size: 11px; color: var(--blue); text-decoration: none; font-weight: 500; font-family: var(--sans); }
+  .lit-doi a:hover { text-decoration: underline; }
+  .lit-abs { font-family: var(--serif); font-size: 12px; color: var(--text2); line-height: 1.7; padding-top: 8px; border-top: 1px solid var(--border); font-style: italic; }
+
+  /* Loading */
+  .loading { display: flex; flex-direction: column; align-items: center; justify-content: center; flex: 1; gap: 18px; background: var(--bg); }
+  .spinner { width: 40px; height: 40px; border: 3px solid var(--border2); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-text { font-family: var(--serif); font-size: 16px; font-weight: 700; color: var(--navy); font-style: italic; }
+  .loading-sub { font-size: 11px; color: var(--text3); text-align: center; line-height: 2; font-family: var(--sans); }
+
+  .no-routes { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 40px; text-align: center; }
+  .no-routes-icon { font-size: 36px; margin-bottom: 12px; }
+  .no-routes-title { font-family: var(--serif); font-size: 17px; font-weight: 700; color: var(--navy); margin-bottom: 8px; }
+  .no-routes-sub { font-size: 12px; color: var(--text3); line-height: 1.6; font-family: var(--sans); }
+
+  .disclaimer { font-size: 10px; color: var(--text3); padding: 12px 0; border-top: 1px solid var(--border); margin-top: 12px; line-height: 1.6; font-family: var(--sans); font-style: italic; }
+
+  /* ── MODAL: Intermediate Editor ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,20,50,.6); z-index: 1000;
+    align-items: center; justify-content: center;
+    backdrop-filter: blur(3px);
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--white); border-radius: 10px;
+    width: 860px; max-width: 95vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,.3);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+  }
+  .modal-hdr {
+    background: var(--navy); padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-title { font-family: var(--serif); font-size: 16px; color: #fff; font-style: italic; }
+  .modal-close { background: none; border: none; color: rgba(255,255,255,.7); font-size: 20px; cursor: pointer; line-height: 1; }
+  .modal-close:hover { color: #fff; }
+  .modal-body { flex: 1; display: flex; flex-direction: column; }
+  .modal-ketcher { height: 500px; border-bottom: 1px solid var(--border); }
+  .modal-ketcher iframe { width: 100%; height: 100%; border: none; display: block; }
+  .modal-footer {
+    padding: 12px 20px; display: flex; gap: 10px; justify-content: flex-end;
+    background: #f8fafd;
+  }
+  .modal-info { flex: 1; font-size: 11px; color: var(--text3); align-self: center; font-style: italic; font-family: var(--serif); }
+  .btn-cancel { padding: 8px 20px; border: 1px solid var(--border2); border-radius: 6px; background: var(--white); color: var(--text2); font-size: 13px; cursor: pointer; font-family: var(--sans); }
+  .btn-apply { padding: 8px 24px; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: var(--sans); box-shadow: 0 2px 6px rgba(0,87,168,.3); }
+  .btn-apply:hover { background: var(--navy); }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="logo-wrap">
+    <div class="logo-icon">SP</div>
+    <div>
+      <div class="logo-name">SynPath</div>
+      <div class="logo-tagline">AI Retrosynthesis Engine</div>
+    </div>
+  </div>
+  <div class="hdr-divider"></div>
+  <div class="hdr-badges">
+    <span class="hbadge">RXN4CHEM</span>
+    <span class="hbadge">EUROPE PMC</span>
+    <span class="hbadge">USPTO</span>
+    <span class="hbadge">PUBCHEM</span>
+  </div>
+  <div class="hdr-right">
+    <button class="back-btn" id="back-btn" onclick="showDraw()">← New Search</button>
+  </div>
+</div>
+
+<!-- SCREEN 1: DRAW -->
+<div class="screen draw-screen active" id="screen-draw">
+  <div class="draw-top">
+    <div class="mode-tabs">
+      <button class="mtab active" onclick="setMode('draw',this)">✎ Draw Structure</button>
+      <button class="mtab" onclick="setMode('name',this)">⌕ Compound Name</button>
+      <button class="mtab" onclick="setMode('smiles',this)">◇ SMILES</button>
+      <button class="mtab" onclick="setMode('peptide',this)">∿ Peptide Sequence</button>
+    </div>
+  </div>
+
+  <div class="ketcher-wrap" id="ketcher-wrap">
+    <iframe id="ketcher-frame" src="/static/standalone/index.html" title="Structure Editor"></iframe>
+  </div>
+
+  <div class="text-area" id="name-area">
+    <input class="tinput" id="name-val" placeholder="e.g. Aspirin, Ibuprofen, Lidocaine, Aniline..." onkeydown="if(event.key==='Enter')analyze()">
+    <div class="examples">
+      <span style="font-size:11px;color:var(--text3);font-style:italic">Examples:</span>
+      <button class="ex-btn" onclick="setEx('Aspirin')">Aspirin</button>
+      <button class="ex-btn" onclick="setEx('Ibuprofen')">Ibuprofen</button>
+      <button class="ex-btn" onclick="setEx('Caffeine')">Caffeine</button>
+      <button class="ex-btn" onclick="setEx('Lidocaine')">Lidocaine</button>
+      <button class="ex-btn" onclick="setEx('Aniline')">Aniline</button>
+      <button class="ex-btn" onclick="setEx('Resveratrol')">Resveratrol</button>
+    </div>
+    <div class="partial-section" style="width:100%;max-width:560px">
+      <button class="partial-toggle" onclick="togglePartial()">▶ Have an intermediate? Start from partial route</button>
+      <div class="partial-box" id="partial-box">
+        <input class="tinput smiles-in" id="start-smiles" placeholder="SMILES of available intermediate..." style="margin-top:8px">
+        <div class="hint" style="margin-top:4px;font-style:italic">System will plan synthesis from this intermediate to your target</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="text-area" id="smiles-area">
+    <input class="tinput smiles-in" id="smiles-val" placeholder="CC(=O)Oc1ccccc1C(=O)O" onkeydown="if(event.key==='Enter')analyze()">
+    <div class="hint">Canonical or isomeric SMILES — copy from PubChem or ChemDraw</div>
+  </div>
+
+  <div class="text-area" id="peptide-area">
+    <input class="tinput" id="peptide-val" placeholder="ACDEFGHIK  or  H-Ala-Gly-Phe-OH" onkeydown="if(event.key==='Enter')analyze()">
+    <div style="display:flex;gap:10px">
+      <select class="pselect" id="c-terminus">
+        <option value="amide">C-terminus: Amide</option>
+        <option value="acid">C-terminus: Free acid</option>
+        <option value="fragment">Fragment (2-CTC resin)</option>
+      </select>
+      <select class="pselect" id="scale">
+        <option value="0.05">Scale: 0.05 mmol</option>
+        <option value="0.1" selected>Scale: 0.1 mmol</option>
+        <option value="0.25">Scale: 0.25 mmol</option>
+        <option value="0.5">Scale: 0.5 mmol</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="draw-bottom">
+    <div class="inv-pill" id="inv-info"><div class="inv-dot"></div>Loading inventory...</div>
+    <button class="analyze-btn" id="analyze-btn" onclick="analyze()">Analyze →</button>
+  </div>
+</div>
+
+<!-- SCREEN 2: RESULTS -->
+<div class="screen results-screen" id="screen-results">
+  <div class="target-bar" id="target-bar">
+    <div style="flex:1">
+      <div class="tname" id="res-name">—</div>
+      <div class="tmeta" id="res-meta"></div>
+    </div>
+    <div id="res-img"></div>
+  </div>
+  <div class="rtab-bar">
+    <button class="rtab active" onclick="switchTab('routes',this)">Synthesis Routes</button>
+    <button class="rtab" onclick="switchTab('procedure',this)">Procedure</button>
+    <button class="rtab" onclick="switchTab('literature',this)" id="lit-tab-btn">Literature</button>
+  </div>
+  <div class="tab-content">
+    <div class="tab-panel active" id="tab-routes"></div>
+    <div class="tab-panel" id="tab-procedure"></div>
+    <div class="tab-panel" id="tab-literature"></div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="screen" id="screen-loading">
+  <div class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Analyzing synthesis routes...</div>
+    <div class="loading-sub">
+      Searching literature databases<br>
+      Running retrosynthetic analysis<br>
+      Generating procedures & checking availability
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: Intermediate Editor -->
+<div class="modal-overlay" id="mol-modal">
+  <div class="modal">
+    <div class="modal-hdr">
+      <div class="modal-title" id="modal-title">Edit Intermediate</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-ketcher">
+        <iframe id="modal-ketcher-frame" src="/static/standalone/index.html" title="Edit Structure"></iframe>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <div class="modal-info">Edit the structure above, then click Apply to re-analyze from this intermediate</div>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+      <button class="btn-apply" onclick="applyIntermediate()">Apply & Re-analyze →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let mode = 'draw';
+let currentTarget = '';
+let currentTargetSmiles = '';
+let modalSmiles = '';
+
+window.onload = () => loadInventory();
+
+function setMode(m, btn) {
+  mode = m;
+  document.querySelectorAll('.mtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  const kw = document.getElementById('ketcher-wrap');
+  kw.style.display = m === 'draw' ? 'block' : 'none';
+  kw.style.flex = m === 'draw' ? '1' : '0';
+  ['name','smiles','peptide'].forEach(x => {
+    document.getElementById(x+'-area').classList.toggle('show', x===m && m!=='draw');
+  });
+}
+
+function setEx(v) { document.getElementById('name-val').value = v; }
+
+function togglePartial() {
+  const b = document.getElementById('partial-box');
+  b.classList.toggle('show');
+  event.target.textContent = b.classList.contains('show')
+    ? '▼ Have an intermediate? Start from partial route'
+    : '▶ Have an intermediate? Start from partial route';
+}
+
+async function getKetcherSmiles(frameId) {
+  frameId = frameId || 'ketcher-frame';
+  try {
+    const k = document.getElementById(frameId).contentWindow.ketcher;
+    if (k) return await k.getSmiles();
+  } catch(e) {}
+  return null;
+}
+
+async function loadKetcherSmiles(frameId, smiles) {
+  if (!smiles) return;
+  try {
+    // Wait for Ketcher to be ready
+    await new Promise(r => setTimeout(r, 800));
+    const frame = document.getElementById(frameId);
+    const k = frame.contentWindow.ketcher;
+    if (k) {
+      await k.setMolecule(smiles);
+      // Wait for molecule to render then zoom to fit
+      await new Promise(r => setTimeout(r, 400));
+      try {
+        if (k.editor && k.editor.zoom) {
+          k.editor.zoom(1);
+        }
+        // Try different zoom methods
+        if (k.setZoom) await k.setZoom(1);
+        const doc = frame.contentWindow.document;
+        const fitBtn = doc.querySelector('[title*="fit"]') || doc.querySelector('[aria-label*="fit"]') || doc.querySelector('.zoom-fit');
+        if (fitBtn) fitBtn.click();
+      } catch(e) {}
+    }
+  } catch(e) {}
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.getElementById('back-btn').classList.toggle('show', id === 'screen-results');
+}
+
+function showDraw() { showScreen('screen-draw'); }
+
+// ── INTERMEDIATE EDITOR ──
+function openIntermediateEditor(smiles, name) {
+  modalSmiles = smiles || '';
+  document.getElementById('modal-title').textContent = `Edit Intermediate: ${name || 'Structure'}`;
+  document.getElementById('mol-modal').classList.add('show');
+  if (smiles) {
+    setTimeout(() => loadKetcherSmiles('modal-ketcher-frame', smiles), 800);
+  }
+}
+
+function closeModal() {
+  document.getElementById('mol-modal').classList.remove('show');
+}
+
+async function applyIntermediate() {
+  const smiles = await getKetcherSmiles('modal-ketcher-frame');
+  if (!smiles) { alert('Please draw or load a structure first.'); return; }
+  closeModal();
+  document.getElementById('start-smiles').value = smiles;
+  document.getElementById('partial-box').classList.add('show');
+  await analyzeWithInput(currentTarget || currentTargetSmiles, smiles);
+}
+
+// ── ANALYZE ──
+async function analyze() {
+  let input = '';
+  if (mode==='draw') { input = await getKetcherSmiles(); if (!input) { alert('Please draw a molecule first.'); return; } }
+  else if (mode==='name') input = document.getElementById('name-val').value.trim();
+  else if (mode==='smiles') input = document.getElementById('smiles-val').value.trim();
+  else if (mode==='peptide') input = document.getElementById('peptide-val').value.trim();
+  if (!input) { alert('Please enter input first.'); return; }
+
+  const startSmiles = document.getElementById('start-smiles')?.value.trim() || '';
+  currentTarget = input;
+  await analyzeWithInput(input, startSmiles);
+}
+
+async function analyzeWithInput(input, startSmiles) {
+  const scale = parseFloat(document.getElementById('scale').value) || 0.1;
+  const cTerm = document.getElementById('c-terminus').value;
+
+  showScreen('screen-loading');
+  document.getElementById('analyze-btn').disabled = true;
+
+  try {
+    const res = await fetch('/analyze', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ input, start_smiles: startSmiles || '', scale_mmol: scale, c_terminus: cTerm })
+    });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const data = await res.json();
+    currentTargetSmiles = data.compound_info?.smiles || '';
+    renderResults(data);
+    showScreen('screen-results');
+  } catch(e) {
+    showDraw();
+    alert('Error: ' + e.message + '\n\nMake sure server is running:\npython3 -m uvicorn backend:app --host 127.0.0.1 --port 8000');
+  } finally {
+    document.getElementById('analyze-btn').disabled = false;
+  }
+}
+
+// ── RENDER ──
+function renderResults(data) {
+  const ai = data.ai_analysis || {};
+  const info = data.compound_info || {};
+
+  document.getElementById('res-name').textContent = ai.target || data.input || 'Unknown';
+  const metaParts = [];
+  if (info.mw) metaParts.push(`MW: ${info.mw} g/mol`);
+  if (info.formula) metaParts.push(`Formula: ${info.formula}`);
+  if (info.length) metaParts.push(`${info.length} residues`);
+  document.getElementById('res-meta').textContent = metaParts.join('  ·  ');
+  document.getElementById('res-img').innerHTML = data.mol_image
+    ? `<div class="tmol"><img src="data:image/png;base64,${data.mol_image}"></div>` : '';
+  document.getElementById('lit-tab-btn').textContent = `Literature (${(data.literature||[]).length})`;
+
+  const routesEl = document.getElementById('tab-routes');
+  const aiRoutes = ai.routes || [];
+  let rhtml = '';
+
+  if (aiRoutes.length === 0 && data.input_type !== 'peptide') {
+    rhtml = `<div class="no-routes">
+      <div class="no-routes-icon">⌬</div>
+      <div class="no-routes-title">No routes generated</div>
+      <div class="no-routes-sub">The AI could not generate routes for this molecule.<br>Check your Anthropic API key in config.py and restart the server.</div>
+    </div>`;
+  }
+
+  aiRoutes.forEach((r,i) => { rhtml += buildRouteCard(r, i); });
+
+  if (data.input_type === 'peptide' && info.spps_protocol) {
+    rhtml += buildPeptideCard(info.spps_protocol, ai);
+  }
+
+  if (ai.recommendation_rationale) {
+    rhtml = `<div class="rec-box">
+      <div class="rec-icon">★</div>
+      <div>
+        <div class="rec-label">Recommendation</div>
+        <div class="rec-text">${escHtml(ai.recommendation_rationale)}</div>
+      </div>
+    </div>` + rhtml;
+  }
+
+  rhtml += `<div class="disclaimer">⚠ SynPath generates synthesis plans for planning purposes only. Always verify conditions against primary literature before laboratory execution.</div>`;
+  routesEl.innerHTML = rhtml;
+
+  const procEl = document.getElementById('tab-procedure');
+  if (ai.detailed_procedure) procEl.innerHTML = buildProcedure(ai.detailed_procedure);
+  else if (data.input_type === 'peptide' && info.spps_protocol) procEl.innerHTML = buildSppsProc(info.spps_protocol);
+  else procEl.innerHTML = `<div style="color:var(--text3);padding:30px;font-size:13px;font-style:italic">No detailed procedure generated.</div>`;
+
+  const litEl = document.getElementById('tab-literature');
+  const papers = data.literature || [];
+  litEl.innerHTML = papers.length
+    ? papers.filter(p=>!p.error).map(buildLitCard).join('')
+    : `<div style="color:var(--text3);padding:30px;font-size:13px;font-style:italic">No literature found for this compound.</div>`;
+}
+
+function buildRouteCard(r, idx) {
+  const isRec = r.rank === 1 || idx === 0;
+  const yNum = parseInt(r.overall_yield_estimate) || 0;
+  const yColor = yNum > 55 ? 'var(--green)' : yNum > 30 ? 'var(--yellow)' : 'var(--red)';
+  const diffColor = {trivial:'var(--green)',easy:'var(--green)',moderate:'var(--yellow)',challenging:'#c0570b',expert:'var(--red)'}[r.difficulty] || 'var(--text)';
+  const costColor = {low:'var(--green)',medium:'var(--yellow)',high:'var(--red)'}[r.cost_estimate] || 'var(--text)';
+  const scaleColor = {excellent:'var(--green)',good:'var(--green)',moderate:'var(--yellow)',poor:'var(--red)'}[r.scalability] || 'var(--text)';
+
+  let h = `<div class="route-card ${isRec?'recommended':''}">
+    <div class="route-hdr">
+      <div class="route-num">${r.rank||idx+1}</div>
+      <div class="route-title">${escHtml(r.name||'Route '+(idx+1))}</div>
+      ${isRec ? '<span class="rec-pill">★ Recommended</span>' : ''}
+    </div>
+    <div class="route-stats">
+      <div class="rstat"><div class="rstat-label">Steps</div><div class="rstat-value">${r.num_steps||'?'}</div></div>
+      <div class="rstat"><div class="rstat-label">Overall Yield</div><div class="rstat-value" style="color:${yColor}">${escHtml(r.overall_yield_estimate||'?')}</div></div>
+      <div class="rstat"><div class="rstat-label">Difficulty</div><div class="rstat-value" style="color:${diffColor};font-size:13px;text-transform:capitalize">${escHtml(r.difficulty||'—')}</div></div>
+      <div class="rstat"><div class="rstat-label">Cost</div><div class="rstat-value" style="color:${costColor};font-size:13px;text-transform:capitalize">${escHtml(r.cost_estimate||'—')}</div></div>
+      <div class="rstat"><div class="rstat-label">Scale-up</div><div class="rstat-value" style="color:${scaleColor};font-size:13px;text-transform:capitalize">${escHtml(r.scalability||'—')}</div></div>
+    </div>`;
+
+  const steps = r.steps_with_smiles || [];
+  if (steps.length > 0) {
+    h += `<div class="scheme-section">
+      <div class="scheme-title">Synthesis Scheme — click any intermediate to edit</div>
+      <div class="scheme-flow">`;
+
+    steps.forEach((step, si) => {
+      if (si === 0) {
+        h += `<div class="mol-box">
+          <div class="mol-img-wrap sm-mol" onclick="openIntermediateEditor('${escAttr(step.reactant_smiles)}','${escAttr(step.reactant_name)}')" title="Click to edit this intermediate">
+            ${step.reactant_smiles ? `<img src="/mol_img?smiles=${encodeURIComponent(step.reactant_smiles)}&w=100&h=80" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=font-size:9px;color:var(--text3);text-align:center;padding:4px>' + (this.alt||'Structure') + '</span>'">` : `<span style="font-size:9px;color:var(--text3);text-align:center;padding:4px">${escHtml(step.reactant_name||'Starting Material')}</span>`}
+          </div>
+          <div class="mol-num">${si+1}</div>
+          <div class="mol-label">${escHtml((step.reactant_name||'SM').slice(0,25))}</div>
+        </div>`;
+      }
+
+      h += `<div class="step-arrow">
+        <div class="arrow-step-label">${escHtml(step.label||String.fromCharCode(65+si))}</div>
+        <div class="arrow-line"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+        <div class="arrow-rxn">${escHtml((step.reaction||'').slice(0,40))}</div>
+        <div class="arrow-cond">${escHtml((step.conditions||'').slice(0,45))}</div>
+        ${step.yield ? `<div class="arrow-yield">${escHtml(step.yield)}</div>` : ''}
+        ${step.doi ? `<div class="arrow-doi"><a href="https://doi.org/${step.doi}" target="_blank">📄 DOI</a></div>` : ''}
+      </div>`;
+
+      const isLast = si === steps.length - 1;
+      const molClass = isLast ? 'target-mol' : 'sm-mol';
+      const clickHandler = isLast ? '' : `onclick="openIntermediateEditor('${escAttr(step.product_smiles)}','${escAttr(step.product_name)}')" title="Click to edit this intermediate"`;
+
+      h += `<div class="mol-box">
+        <div class="mol-img-wrap ${molClass}" ${clickHandler}>
+          ${step.product_smiles ? `<img src="/mol_img?smiles=${encodeURIComponent(step.product_smiles)}&w=100&h=80" alt="" onerror="this.style.display='none';this.parentElement.innerHTML='<span style=font-size:9px;color:var(--text3);text-align:center;padding:4px>' + (this.alt||'Structure') + '</span>'">` : `<span style="font-size:9px;color:var(--text3);text-align:center;padding:4px">${isLast?'Target':'Intermediate'}</span>`}
+        </div>
+        <div class="mol-num">${si+2}</div>
+        <div class="mol-label">${escHtml((step.product_name||(isLast?'Target':'Int. '+(si+1))).slice(0,25))}</div>
+      </div>`;
+    });
+
+    h += `</div></div>`;
+  } else if ((r.key_reactions||[]).length > 0) {
+    h += `<div class="scheme-section">
+      <div class="scheme-title">Synthesis Scheme</div>
+      <div class="scheme-flow">
+        <div class="mol-box"><div class="mol-img-wrap sm-mol"><span style="font-size:10px;color:var(--text3);text-align:center;padding:4px;font-style:italic">Starting Material</span></div><div class="mol-num">1</div></div>
+        ${r.key_reactions.map((rxn,i) => `
+          <div class="step-arrow">
+            <div class="arrow-step-label">${String.fromCharCode(65+i)}</div>
+            <div class="arrow-line"><div class="arrow-shaft"></div><div class="arrow-tip"></div></div>
+            <div class="arrow-rxn">${escHtml(rxn)}</div>
+          </div>
+          <div class="mol-box">
+            <div class="mol-img-wrap ${i===r.key_reactions.length-1?'target-mol':'sm-mol'}">
+              <span style="font-size:10px;color:var(--text3);text-align:center;padding:4px;font-style:italic">${i===r.key_reactions.length-1?'Target':'Int. '+(i+1)}</span>
+            </div>
+            <div class="mol-num">${i+2}</div>
+          </div>`).join('')}
+      </div></div>`;
+  }
+
+  if ((r.literature_support||[]).filter(x=>x.doi).length) {
+    h += `<div class="route-refs">
+      <div class="ref-label">Literature References</div>
+      ${r.literature_support.filter(x=>x.doi).map(ref => `
+        <div class="ref-item">📄 <a href="https://doi.org/${ref.doi}" target="_blank">${ref.doi}</a>
+        ${ref.notes ? `<span class="ref-note">— ${escHtml(ref.notes)}</span>` : ''}</div>`).join('')}
+    </div>`;
+  }
+
+  h += `<div class="route-footer">
+    <div class="pros-list">${(r.pros||[]).map(p=>`<div class="item"><span>✓</span><span>${escHtml(p)}</span></div>`).join('')}</div>
+    <div class="cons-list">${(r.cons||[]).map(c=>`<div class="item"><span>✗</span><span>${escHtml(c)}</span></div>`).join('')}</div>
+  </div></div>`;
+  return h;
+}
+
+function buildPeptideCard(spps, ai) {
+  return `<div class="route-card recommended">
+    <div class="route-hdr">
+      <div class="route-num">∿</div>
+      <div class="route-title">Fmoc SPPS — ${escHtml(spps.sequence||'')}</div>
+      <span class="rec-pill">★ Recommended</span>
+    </div>
+    <div class="route-stats">
+      <div class="rstat"><div class="rstat-label">Residues</div><div class="rstat-value">${spps.length||'?'}</div></div>
+      <div class="rstat"><div class="rstat-label">Scale</div><div class="rstat-value" style="font-size:12px">${escHtml(spps.scale||'—')}</div></div>
+      <div class="rstat"><div class="rstat-label">Resin</div><div class="rstat-value" style="font-size:11px">${escHtml((spps.resin?.name||'').split(' ').slice(0,3).join(' ')||'—')}</div></div>
+      <div class="rstat"><div class="rstat-label">Cleavage</div><div class="rstat-value" style="font-size:11px">TFA cocktail</div></div>
+      <div class="rstat"><div class="rstat-label">Theoretical</div><div class="rstat-value" style="font-size:10px">${escHtml(spps.estimated_crude_yield||'—')}</div></div>
+    </div>
+    ${ai.analysis ? `<div style="padding:14px 20px;font-family:var(--serif);font-size:13px;color:var(--text2);line-height:1.75;border-bottom:1px solid var(--border);font-style:italic">${escHtml(ai.analysis)}</div>` : ''}
+  </div>`;
+}
+
+function buildProcedure(proc) {
+  if (!proc) return '';
+  return `<div class="proc-title">${escHtml(proc.title||'Synthesis Procedure')}</div>
+  ${(proc.steps||[]).map((s,i) => `
+    <div class="proc-step">
+      <div class="ps-hdr"><div class="ps-num">${s.step||i+1}</div><div class="ps-title">${escHtml(s.title||s.reaction||'Step '+(i+1))}</div></div>
+      ${s.reagents?.length?`<div class="ps-field"><div class="ps-label">Reagents & Stoichiometry</div><div class="ps-val">${escHtml(Array.isArray(s.reagents)?s.reagents.join('\n'):s.reagents)}</div></div>`:''}
+      ${s.conditions?`<div class="ps-field"><div class="ps-label">Conditions</div><div class="ps-val">${escHtml(s.conditions)}</div></div>`:''}
+      ${s.workup?`<div class="ps-field"><div class="ps-label">Workup</div><div class="ps-val">${escHtml(s.workup)}</div></div>`:''}
+      ${s.purification?`<div class="ps-field"><div class="ps-label">Purification</div><div class="ps-val">${escHtml(s.purification)}</div></div>`:''}
+      ${s.yield?`<div class="ps-field"><div class="ps-label">Expected Yield</div><div class="ps-yield">${escHtml(s.yield)}</div></div>`:''}
+      ${s.doi_reference?`<div class="ps-doi">📄 Reference: <a href="https://doi.org/${s.doi_reference}" target="_blank">${s.doi_reference}</a></div>`:''}
+      ${s.notes?`<div class="ps-notes">⚠ ${escHtml(s.notes)}</div>`:''}
+    </div>`).join('')}
+  <div class="disclaimer">⚠ AI-generated for planning purposes only. Verify against primary literature before execution.</div>`;
+}
+
+function buildSppsProc(spps) {
+  return `<div class="proc-title">${escHtml(spps.method||'Fmoc SPPS')} — ${escHtml(spps.sequence||'')} · ${escHtml(spps.scale||'')}</div>
+  ${(spps.steps||[]).map(s=>`
+    <div class="proc-step">
+      <div class="ps-hdr"><div class="ps-num">${s.step}</div><div class="ps-title">${escHtml(s.title)}</div></div>
+      <div class="ps-val">${escHtml(s.details||'')}</div>
+      ${(s.reagents||[]).length?`<div class="ps-field" style="margin-top:8px"><div class="ps-label">Reagents</div><div class="ps-val">${escHtml(s.reagents.join('\n'))}</div></div>`:''}
+      ${s.notes?`<div class="ps-notes" style="margin-top:6px">⚠ ${escHtml(s.notes)}</div>`:''}
+    </div>`).join('')}`;
+}
+
+function buildLitCard(p) {
+  const c = p.extracted_conditions || {};
+  const tags = [
+    c.temperature?`🌡 ${c.temperature}`:'',
+    c.yield?`⇒ ${c.yield}`:'',
+    c.time?`⏱ ${c.time}`:'',
+    ...(c.solvents||[]).slice(0,3).map(s=>`🧪 ${s}`),
+    ...(c.reaction_types||[]).slice(0,2).map(r=>`⚗ ${r}`),
+  ].filter(Boolean);
+  const authors = p.authors ? p.authors.split(',').slice(0,2).join(',')+(p.authors.split(',').length>2?' et al.':'') : '';
+  return `<div class="lit-card">
+    <div class="lit-title">${escHtml(p.title||'Untitled')}</div>
+    <div class="lit-meta">${[p.journal||p.source, p.year?`(${p.year})`:'', authors].filter(Boolean).join(' · ')}</div>
+    ${tags.length?`<div class="lit-tags">${tags.map(t=>`<span class="lit-tag">${escHtml(t)}</span>`).join('')}</div>`:''}
+    ${p.doi?`<div class="lit-doi"><a href="https://doi.org/${p.doi}" target="_blank">DOI: ${p.doi}</a></div>`:''}
+    ${p.abstract_snippet?`<div class="lit-abs">${escHtml(p.abstract_snippet)}</div>`:''}
+  </div>`;
+}
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.rtab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+}
+
+function escHtml(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function escAttr(s) {
+  if (!s) return '';
+  return String(s).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+}
+
+async function loadInventory() {
+  try {
+    const r = await fetch('/inventory');
+    const items = await r.json();
+    document.getElementById('inv-info').innerHTML = `<div class="inv-dot"></div>${items.length} reagents in inventory`;
+  } catch(e) {
+    document.getElementById('inv-info').textContent = 'Inventory offline';
+  }
+}
+</script>
+</body>
+</html>

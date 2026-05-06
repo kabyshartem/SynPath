@@ -1,0 +1,56 @@
+name,smiles,quantity,unit,location,cas
+Fmoc-Gly-OH,O=C(OCC1c2ccccc2-c2ccccc21)NCC(=O)O,50,g,Freezer-A1,29022-11-5
+Fmoc-Ala-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(C)C(=O)O,50,g,Freezer-A1,35661-39-3
+Fmoc-Val-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(C(C)C)C(=O)O,25,g,Freezer-A1,68858-20-8
+Fmoc-Leu-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CC(C)C)C(=O)O,25,g,Freezer-A1,35661-60-0
+Fmoc-Ile-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(C(C)CC)C(=O)O,20,g,Freezer-A1,71989-23-6
+Fmoc-Pro-OH,O=C(OCC1c2ccccc2-c2ccccc21)N1CCCC1C(=O)O,25,g,Freezer-A1,71989-31-6
+Fmoc-Phe-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(Cc1ccccc1)C(=O)O,25,g,Freezer-A1,35661-40-6
+Fmoc-Trp(Boc)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(Cc1c[nH]c2ccccc12)C(=O)O,15,g,Freezer-A1,143824-78-6
+Fmoc-Met-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CCSC)C(=O)O,15,g,Freezer-A1,71989-28-1
+Fmoc-Ser(tBu)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(COC(C)(C)C)C(=O)O,20,g,Freezer-A2,71989-33-8
+Fmoc-Thr(tBu)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(C(OC(C)(C)C)C)C(=O)O,20,g,Freezer-A2,71989-35-0
+Fmoc-Cys(Trt)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CS)C(=O)O,10,g,Freezer-A2,103213-32-7
+Fmoc-Tyr(tBu)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(Cc1ccc(OC(C)(C)C)cc1)C(=O)O,20,g,Freezer-A2,71989-38-3
+Fmoc-Asn(Trt)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CC(=O)N)C(=O)O,15,g,Freezer-A2,132388-59-1
+Fmoc-Gln(Trt)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CCC(=O)N)C(=O)O,15,g,Freezer-A2,132327-80-1
+Fmoc-Asp(OtBu)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CC(=O)OC(C)(C)C)C(=O)O,20,g,Freezer-A2,71989-14-5
+Fmoc-Glu(OtBu)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CCC(=O)OC(C)(C)C)C(=O)O,20,g,Freezer-A2,71989-18-9
+Fmoc-Lys(Boc)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CCCCNC(=O)OC(C)(C)C)C(=O)O,20,g,Freezer-A3,71989-26-9
+Fmoc-Arg(Pbf)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(CCCNC(=N)N)C(=O)O,15,g,Freezer-A3,154445-77-9
+Fmoc-His(Trt)-OH,O=C(OCC1c2ccccc2-c2ccccc21)NC(Cc1cnc[nH]1)C(=O)O,10,g,Freezer-A3,109425-51-6
+HATU,O=C1CN=C(OCC2c3ccccc3-c3ccccc32)N1,100,g,Cabinet-B1,148893-10-1
+HBTU,O=C(/N=C1\NCCN1)OCC1c2ccccc2-c2ccccc21,50,g,Cabinet-B1,94790-37-1
+HCTU,ClC1=NC(=O)CN=C1OCC1c2ccccc2-c2ccccc21,50,g,Cabinet-B1,330645-87-9
+PyBOP,O=P1(OCC2c3ccccc3-c3ccccc32)(OCC2c3ccccc3-c3ccccc32)N2CCCC2,30,g,Cabinet-B1,128625-52-5
+PyAOP,O=P1(ON2C(=O)CCC2=O)(OCC2c3ccccc3-c3ccccc32)N2CCCC2,20,g,Cabinet-B1,156743-38-3
+COMU,O=C1CN=C(OCC2c3ccccc3-c3ccccc32)N1,20,g,Cabinet-B1,851756-84-8
+TBTU,O=C(/N=C1\NCCN1)OCC1c2ccccc2-c2ccccc21,30,g,Cabinet-B1,125700-67-6
+DIC,CCN=C=NCC,200,mL,Cabinet-B2,693-13-0
+EDC·HCl,CCN=C=NCCCCN.Cl,25,g,Cabinet-B2,25952-53-8
+Oxyma Pure,NOC(=O)c1cccnc1,100,g,Cabinet-B2,70833-40-8
+HOBt·H2O,O=C1CCc2[nH]nnc2O1,50,g,Cabinet-B2,123333-53-9
+HOAt,O=C1CCc2nnc(O)c2N1,20,g,Cabinet-B2,39968-33-7
+DIPEA,CCN(CC)CC,500,mL,Cabinet-B2,7087-68-5
+Et3N,CCN(CC)CC,200,mL,Cabinet-B2,121-44-8
+NMM,CN1CCCCC1,100,mL,Cabinet-B2,622-97-9
+DMF,CN(C)C=O,2000,mL,Solvent-C1,68-12-2
+NMP,CN1CCCC1=O,500,mL,Solvent-C1,872-50-4
+DCM,ClCCl,2000,mL,Solvent-C1,75-09-2
+THF,C1CCOC1,1000,mL,Solvent-C1,109-99-9
+Piperidine,C1CCNCC1,500,mL,Cabinet-B2,110-89-4
+DBU,N1=C2CCCCCN2CC1,100,mL,Cabinet-B2,6674-22-2
+TFA,OC(F)(F)F,500,mL,Cabinet-B2,76-05-1
+TIS,CC(C)[SiH](C(C)C)C(C)C,100,mL,Cabinet-B2,7342-38-3
+EDT,SCCS,50,mL,Freezer-D3,540-63-6
+Phenol,Oc1ccccc1,100,g,Cabinet-B2,108-95-2
+Rink Amide MBHA Resin,,50,g,Freezer-D1,
+Wang Resin,,50,g,Freezer-D1,
+2-CTC Resin,,25,g,Freezer-D1,
+Sieber Amide Resin,,10,g,Freezer-D1,
+NaH,60%,100,g,Cabinet-E1,7646-69-7
+Pd(PPh3)4,,50,g,Freezer-D2,14221-01-3
+LiAlH4,,100,g,Cabinet-E1,16853-85-3
+NaBH4,,100,g,Cabinet-E2,16940-66-2
+Cs2CO3,,200,g,Cabinet-E2,534-17-8
+K2CO3,,500,g,Cabinet-E2,584-08-7
