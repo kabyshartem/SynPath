@@ -35,7 +35,7 @@ async def _fix_route_smiles(parsed: dict) -> dict:
 
 
 
-SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-3 retrosynthetic routes for the EXACT target molecule provided. Every route must lead to the EXACT target — not an analog, not a similar compound. If analog-based reasoning is used, the final product must still be the exact target. Use chemistry knowledge when no literature exists. Return ONLY valid JSON object, no markdown, no text outside JSON."
+SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 4-5 retrosynthetic routes for the EXACT target molecule provided. Every route must lead to the EXACT target — not an analog, not a similar compound. If analog-based reasoning is used, the final product must still be the exact target. Use chemistry knowledge when no literature exists. Return ONLY valid JSON object, no markdown, no text outside JSON."
 
 async def analyze_routes(target_name, target_smiles, retrosynthesis_data, literature_papers, availability_data, partial_route=False, start_smiles=""):
     client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
