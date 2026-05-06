@@ -124,3 +124,26 @@ async def check_compound(body: dict):
 if __name__ == "__main__":
     print("\n" + "="*50 + f"\n  SynPath A · http://127.0.0.1:{config.PORT}\n" + "="*50 + "\n")
     uvicorn.run("backend:app", host=config.HOST, port=config.PORT, reload=False)
+
+
+# ── Password Protection ────────────────────────────────
+import secrets as _secrets
+_SITE_PASSWORD = __import__('os').environ.get("SITE_PASSWORD", "synpath2024")
+_VALID_TOKENS: set = set()
+
+class _LoginReq(__import__('pydantic').BaseModel):
+    password: str
+
+@app.post("/api/login")
+async def _login(req: _LoginReq):
+    if req.password == _SITE_PASSWORD:
+        token = _secrets.token_hex(32)
+        _VALID_TOKENS.add(token)
+        return {"token": token}
+    raise HTTPException(status_code=401, detail="Wrong password")
+
+@app.get("/api/verify")  
+async def _verify(x_auth_token: str = __import__('fastapi').Header(None)):
+    if x_auth_token and x_auth_token in _VALID_TOKENS:
+        return {"ok": True}
+    raise HTTPException(status_code=401, detail="Unauthorized")
