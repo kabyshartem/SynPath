@@ -67,14 +67,14 @@ async def _fix_route_smiles(parsed: dict) -> dict:
 
 
 
-SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. CRITICAL DOI RULE: Never fabricate DOIs. For each step provide a real DOI where: (1) the paper uses this EXACT compound, OR (2) the paper uses the SAME reaction on a structurally similar substrate (same ring system, same functional group). DOI must be a real published paper you are certain exists. If you are not 100% certain — leave doi empty. Never guess DOIs. Return ONLY valid JSON, no markdown. Be concise — short pros/cons (max 8 words each), short conditions, no long explanations."
+SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. The final product SMILES in every route MUST match the target SMILES character-for-character. No analogs, no regioisomers, no stereoisomers as final product. CRITICAL DOI RULE: Never fabricate DOIs. For each step provide a real DOI where: (1) the paper uses this EXACT compound, OR (2) the paper uses the SAME reaction on a structurally similar substrate (same ring system, same functional group). DOI must be a real published paper you are certain exists. If you are not 100% certain — leave doi empty. Never guess DOIs. Return ONLY valid JSON, no markdown. Be concise — short pros/cons (max 8 words each), short conditions, no long explanations."
 
 async def analyze_routes(target_name, target_smiles, retrosynthesis_data, literature_papers, availability_data, partial_route=False, start_smiles=""):
     _ck = _cache_key(target_smiles, partial_route, start_smiles)
     if _ck in _ROUTE_CACHE:
         return _ROUTE_CACHE[_ck]
     client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
-    msg = f"TARGET: {target_name}\nSMILES: {target_smiles}\n"
+    msg = f"TARGET: {target_name}\nSMILES: {target_smiles}\nWARNING: Final product in every route must have SMILES={target_smiles}\n"
     if partial_route and start_smiles:
         msg += f"USER HAS INTERMEDIATE: {start_smiles}\n"
     valid_lit = [p for p in (literature_papers or [])[:3] if not p.get("error")]
