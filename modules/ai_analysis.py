@@ -73,13 +73,13 @@ async def analyze_routes(target_name, target_smiles, retrosynthesis_data, litera
             if m:
                 try: parsed = json.loads(m.group())
                 except: pass
-        if not parsed: return {"error":f"Parse failed: {raw[:300]}","routes":[],"analysis_summary":"Parse error"}
+        if not parsed: print(f"PARSE FAILED: {raw[:200] if raw else None}", flush=True); return {"error":f"Parse failed: {raw[:300]}","routes":[],"analysis_summary":"Parse error"}
         if not isinstance(parsed.get("routes"),list) or not parsed["routes"]: return {"error":"No routes","routes":[],"analysis_summary":parsed.get("analysis_summary","")}
         parsed = await _fix_route_smiles(parsed)
         _ROUTE_CACHE[_ck] = parsed
         return parsed
-    except anthropic.APIStatusError as e: return {"error":f"API {e.status_code}: {e.message}","routes":[],"analysis_summary":str(e)}
-    except Exception as ex: return {"error":str(ex),"routes":[],"analysis_summary":str(ex)}
+    except anthropic.APIStatusError as e: print(f"API ERROR: {e.status_code} {e.message}", flush=True); return {"error":f"API {e.status_code}: {e.message}","routes":[],"analysis_summary":str(e)}
+    except Exception as ex: print(f"EXCEPTION: {str(ex)}", flush=True); return {"error":str(ex),"routes":[],"analysis_summary":str(ex)}
 
 async def analyze_peptide(sequence, spps_protocol, literature_papers, availability_data):
     client = anthropic.Anthropic(api_key=config.ANTHROPIC_API_KEY)
