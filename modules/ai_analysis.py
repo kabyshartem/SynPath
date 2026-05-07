@@ -41,7 +41,7 @@ async def _fix_route_smiles(parsed: dict) -> dict:
 
 
 
-SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. CRITICAL DOI RULE: Only include doi if you are certain the paper describes this exact reaction. If unsure, use doi="" and reference analog reactions instead. Never fabricate DOIs. Return ONLY valid JSON, no markdown."
+SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. CRITICAL DOI RULE: Only include doi if you are certain the paper describes this exact reaction. If unsure, use doi="" and reference analog reactions instead. Never fabricate DOIs. Return ONLY valid JSON, no markdown. Be concise — short pros/cons (max 8 words each), short conditions, no long explanations."
 
 async def analyze_routes(target_name, target_smiles, retrosynthesis_data, literature_papers, availability_data, partial_route=False, start_smiles=""):
     _ck = _cache_key(target_smiles, partial_route, start_smiles)
@@ -59,7 +59,7 @@ async def analyze_routes(target_name, target_smiles, retrosynthesis_data, litera
             msg += f"[{i+1}] {p.get('title','')[:50]}\nDOI: {p.get('doi','')}\nConditions: temp={c.get('temperature','?')}, yield={c.get('yield','?')}\nAbstract: {p.get('abstract_snippet','')[:80]}\n"
     msg += """\nReturn JSON: {"target":"name","smiles":"SMILES","analysis_summary":"text","routes":[{"rank":1,"name":"name","num_steps":2,"overall_yield_estimate":"55%","difficulty":"moderate","cost_estimate":"low","scalability":"good","key_reactions":["rxn1"],"starting_materials":["sm1"],"steps_with_smiles":[{"step":1,"label":"A","reaction":"name","reagents":["r1 (1.0 eq)"],"conditions":"cond","reactant_smiles":"SMILES","reactant_name":"name","product_smiles":"SMILES","product_name":"name","yield":"80%","doi":""}],"pros":["p1"],"cons":["c1"],"literature_support":[{"doi":"","notes":""}]}],"recommended_route":1,"recommendation_rationale":"reason","detailed_procedure":{"title":"title","steps":[{"step":1,"title":"t","reaction":"r","reagents":["r1"],"conditions":"c","workup":"w","purification":"p","yield":"y","doi_reference":"","notes":"n"}]}}"""
     try:
-        resp = client.messages.create(model="claude-sonnet-4-6", max_tokens=6000, temperature=0, system=SYSTEM, messages=[{"role":"user","content":msg}])
+        resp = client.messages.create(model="claude-sonnet-4-6", max_tokens=8192, temperature=0, system=SYSTEM, messages=[{"role":"user","content":msg}])
         raw = resp.content[0].text.strip()
         raw = re.sub(r'^```[a-z]*\s*','',raw); raw = re.sub(r'\s*```$','',raw).strip()
         parsed = None
