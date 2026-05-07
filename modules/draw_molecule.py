@@ -25,7 +25,7 @@ def smiles_to_png_base64(smiles: str, width=300, height=200, bg_white=True) -> s
         drawer.FinishDrawing()
         return base64.b64encode(drawer.GetDrawingText()).decode("utf-8")
     except Exception:
-        return ""
+        return smiles_to_png_base64_pubchem(smiles, width, height)
 
 
 def smiles_to_png_base64_transparent(smiles: str, width=200, height=150) -> str:
@@ -42,5 +42,15 @@ def reaction_smiles_to_png_base64(rxn_smiles: str, width=600, height=200) -> str
         drawer.DrawReaction(rxn)
         drawer.FinishDrawing()
         return base64.b64encode(drawer.GetDrawingText()).decode("utf-8")
+    except Exception:
+        return ""
+
+def smiles_to_png_base64_pubchem(smiles: str, width: int = 300, height: int = 200) -> str:
+    """Fallback: fetch molecule image from PubChem when RDKit fails."""
+    try:
+        import urllib.request, base64, urllib.parse
+        url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/{urllib.parse.quote(smiles)}/PNG?image_size={width}x{height}"
+        with urllib.request.urlopen(url, timeout=8) as r:
+            return base64.b64encode(r.read()).decode("utf-8")
     except Exception:
         return ""

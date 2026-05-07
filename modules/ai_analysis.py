@@ -32,6 +32,32 @@ async def _fix_smiles(name: str, smiles: str) -> str:
         pass
     return smiles
 
+
+async def _verify_doi(doi: str) -> bool:
+    """Check if DOI exists via CrossRef API (free, no key needed)."""
+    if not doi or len(doi) < 5:
+        return False
+    try:
+        async with _httpx.AsyncClient(timeout=5) as c:
+            r = await c.get(f"https://api.crossref.org/works/{doi}", 
+                          headers={"User-Agent": "SynPath/1.0 (mailto:synpath@example.com)"})
+            return r.status_code == 200
+    except Exception:
+        return False
+
+async def _clean_dois(parsed: dict) -> dict:
+    """Remove fabricated DOIs — only keep verified ones."""
+    for route in parsed.get("routes", []):
+        for step in route.get("steps_with_smiles", []):
+            doi = step.get("doi", "")
+            if doi and not await _verify_doi(doi):
+                step["doi"] = ""
+        for ref in route.get("literature_support", []):
+            doi = ref.get("doi", "")
+            if doi and not await _verify_doi(doi):
+                ref["doi"] = ""
+    return parsed
+
 async def _fix_route_smiles(parsed: dict) -> dict:
     for route in parsed.get("routes", []):
         for step in route.get("steps_with_smiles", []):
@@ -76,6 +102,7 @@ async def analyze_routes(target_name, target_smiles, retrosynthesis_data, litera
         if not parsed: print(f"PARSE FAILED: {raw[:200] if raw else None}", flush=True); return {"error":f"Parse failed: {raw[:300]}","routes":[],"analysis_summary":"Parse error"}
         if not isinstance(parsed.get("routes"),list) or not parsed["routes"]: return {"error":"No routes","routes":[],"analysis_summary":parsed.get("analysis_summary","")}
         parsed = await _fix_route_smiles(parsed)
+        parsed = await _clean_dois(parsed)
         _ROUTE_CACHE[_ck] = parsed
         return parsed
     except anthropic.APIStatusError as e: print(f"API ERROR: {e.status_code} {e.message}", flush=True); return {"error":f"API {e.status_code}: {e.message}","routes":[],"analysis_summary":str(e)}
