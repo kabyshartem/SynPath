@@ -67,7 +67,7 @@ async def _fix_route_smiles(parsed: dict) -> dict:
 
 
 
-SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. CRITICAL DOI RULE: Never fabricate DOIs. For each reaction step: (1) if you know a paper describing this exact reaction use its real DOI, (2) if not, find a real DOI for the same reaction class with analogous substrate (e.g. Simmons-Smith on similar cyclopentane), (3) only leave doi empty if no analogous literature exists. Always prefer a real analog DOI over empty. Return ONLY valid JSON, no markdown. Be concise — short pros/cons (max 8 words each), short conditions, no long explanations."
+SYSTEM = "You are SynPath A, expert synthetic chemist. Generate 2-4 retrosynthetic routes (fewer if molecule is simple — quality over quantity). Routes must lead to EXACT target. CRITICAL DOI RULE: Never fabricate DOIs. For each step provide a real DOI where: (1) the paper uses this EXACT compound, OR (2) the paper uses the SAME reaction on a structurally similar substrate (same ring system, same functional group). DOI must be a real published paper you are certain exists. If you are not 100% certain — leave doi empty. Never guess DOIs. Return ONLY valid JSON, no markdown. Be concise — short pros/cons (max 8 words each), short conditions, no long explanations."
 
 async def analyze_routes(target_name, target_smiles, retrosynthesis_data, literature_papers, availability_data, partial_route=False, start_smiles=""):
     _ck = _cache_key(target_smiles, partial_route, start_smiles)
